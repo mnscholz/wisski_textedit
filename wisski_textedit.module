@@ -1,0 +1,172 @@
+<?php
+// $Id$
+
+/**
+* @author Martin Scholz
+*/
+function wisski_textedit_perm() {
+  return array('wisski use editor');
+}
+
+
+
+/**
+* @author Martin Scholz
+*/
+function wisski_textedit_menu() {
+  $menu = array();
+
+  // settings menu
+  $menu['admin/settings/wisski/text/edit'] = array (
+    'title' => 'Editor',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wisski_textedit_admin_settings'),
+    'type'     => MENU_LOCAL_TASK,
+    'access arguments' => array('wisski administrate page'),
+    'file' => 'wisski_textedit.admin.inc',
+  );
+
+  // annotation web services
+  $menu['wisski/editor/suggest'] = array (
+    'title' => '',
+    'page callback' => 'wisski_textedit_ws_suggest',
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('wisski use editor'),
+    'file' => 'wisski_textedit.ws.inc',
+  );
+  $menu['wisski/editor/about'] = array (
+    'title' => '',
+    'page callback' => 'wisski_textedit_ws_about',
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('wisski use editor'),
+    'file' => 'wisski_textedit.ws.inc',
+  );
+
+  return $menu;
+}
+
+
+/** Build the ontology array (= list of groups) for the editor
+*
+* @return an array containing key 'classes' with an array of classes and
+* key 'properties' with an array of properties.
+*
+* The classes array contains key value pairs as follows:
+* <class id> => <array describing the class>
+* A class description contains the keys
+* - id: class id == the group id
+* - label: class label == the group name
+* - uri: the class uri == x0 of path array
+* - domain_for: array of property ids
+* - range_for: array of property ids
+* - parent: the parent class (optional)
+*
+* The properties array contains key value pairs as follows:
+* <property id> => <array describing the property>
+* A property description contains the keys
+* - id: property id == the path id
+* - label: property label == the path name
+* - domain: a class id
+* - range: array of class ids
+* 
+* The classes and propeties are derived from the path/group definitions.
+* Top groups always map to top lvel classes.
+* Paths will always map to properties.
+* There are two modes to treat subgroup definitions:
+* If $subgroups_as_events is FALSE, the subgroups will be omitted. Properties
+* will only go from top group to top group.
+* If $subgroups_as_events is TRUE, the subgroups will map to subclasses of
+* their top group pendants. Paths will go from top group/class to either
+* top group/class or subgroup/subclass. The subgroup will also map to a
+* property going from the top group/class to the subgroup/subclass.
+*
+* @author Martin Scholz
+*/
+function wisski_textedit_build_ontology() {
+  include_once('wisski_textedit.inc');
+  return _wisski_textedit_build_ontology();
+}
+
+
+/** Build the vocabularies array for the editor
+* @return an array of the form <voc id> => <voc description> where the value
+* is an array containing keys:
+* - vid: the vocabulary id
+* - name: its name
+* - priority: a ranking on the vocabs
+* - class: the ontology class associated with that vocab
+*
+* @author Martin Scholz
+*/
+function wisski_textedit_build_vocabularies() {
+
+  // gather vocabularies
+  $vocs = array();
+  foreach (wisski_vocab_ctrl_get() as $voc) {
+    $vocs[$voc->vid] = array(
+        'vid' => $voc->vid,
+        'name' => $voc->name,
+        'priority' => $voc->priority,
+        'class' => $voc->group_id,  // the groups are ontology classes for the editor
+        );
+  }
+  
+  return $vocs;
+
+};
+
+
+
+/**
+* Implementation of hook_init().
+* Add CSS and Javascript files
+* Add settings to Drupal DOM object
+*
+* @author Martin Scholz
+*/
+function wisski_textedit_init() {
+
+  global $base_root, $base_path;
+  $path = drupal_get_path('module', 'wisski_textedit');
+  $css_file = variable_get('wisski_textedit_css_file', NULL);
+  if (!empty($css_file)) drupal_add_css($css_file, 'theme');
+  // does not work, only D7! :(  drupal_add_css($base_root . $base_path . 'wisski/editor/editor.css');  // new: generate the css file on demand; this avoids writing the file on the filesystem
+  drupal_add_css($path . '/tooltip_plugin/css/ttip.css');
+ 
+  drupal_add_js($path . '/tooltip_plugin/lib/jquery.qtip.js');
+  drupal_add_js($path . '/tooltip_plugin/tooltips.js', 'module');
+  
+  drupal_add_js(
+      array(
+          'wisski' => array(
+              'editor' => array(
+                  'place_classes' => variable_get('wisski_textedit_place_groups', array()),
+                  'ontology' => wisski_textedit_build_ontology(),
+                  'vocabularies' => wisski_textedit_build_vocabularies(),
+                  'about_url' => $base_root . $base_path . 'wisski/editor/about',
+                  'suggest_url' => $base_root . $base_path . 'wisski/editor/suggest',
+                  ),
+              ),
+          ),
+      'setting');
+}
+
+
+/**
+* Implementation of hook_wysiwyg_plugin().
+*
+* @author Martin Scholz
+*/
+function wisski_textedit_wysiwyg_plugin($editor, $version) {
+  include_once(dirname(__FILE__) . '/wisski_textedit.inc');
+  return _wisski_textedit_wysiwyg_plugin($editor, $version);
+}
+
+
+function wisski_textedit_enable() {
+  // create css file
+  module_load_include('inc', 'wisski_textedit');
+  wisski_textedit_create_css_file();
+
+}
+

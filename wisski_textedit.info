@@ -1,0 +1,10 @@
+; $Id$
+name = Semantic Editor
+description = A semantically enhanced editor.
+core = 6.x
+version = 3.0
+package = "WissKI Text"
+dependencies[] = wysiwyg
+dependencies[] = wisski_vocab_ctrl
+dependencies[] = wisski_textmod
+
