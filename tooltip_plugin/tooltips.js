@@ -189,7 +189,12 @@
           var broaderLabels = annoChild.broader_labels;
         }
 
+        if (annoChild.image) {
+          var image = annoChild.image[0].value;
+        }
+
       }
+
     }
     
     var tooltipContent  = '<table id="ttip_content">'
@@ -205,11 +210,15 @@
                      + '<tr><td>Lat:</td><td>' + coords.lat + '</td></tr>';
       tooltipContent += '</table>'
                      + '</td>'
-                     + '<td><div style="width:125px;height:125px;">' + WissKI.editor.tooltips.getMap(coords) + '</div></td>'
-                     + '</tr>';
+                     + '<td><div style="width:125px;height:125px;">' + WissKI.editor.tooltips.getMap(coords) + '</div></td>';
     } else {
-      tooltipContent += '</table></td></tr>';
+      tooltipContent += '</table></td>';
     }
+    if (image != undefined || image != null) {
+      tooltipContent += '<td><div style="width:125px;height:125px;"><img style="width:125px;height:auto;" src="' + image + '"/></div></td>';
+    }
+    tooltipContent += '</tr>';
+
     tooltipContent += '</table>';
 
     return tooltipContent;
