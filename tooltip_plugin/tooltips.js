@@ -257,8 +257,11 @@
     var maptype = '&maptype=roadmap';
     var marker = '&markers=color:red|label:A|'+coords.lat+','+coords.lng;
     var googleMaps = 'http://maps.google.com/maps/api/staticmap?';
+    var googleMapsLink = 'http://maps.google.com/?';
+    var loc = 'q=loc:'+coords.lat+','+coords.lng;
     var query = googleMaps+zoomlvl+size+maptype+marker+'&sensor=false';
-    var map = '<img src="'+query+'" style="padding-right:5px;">';
+    var linkQuery = googleMapsLink + loc + '&z=8';
+    var map = '<a target="_blank" href="' + linkQuery + '"><img src="'+query+'" style="padding-right:5px;"></a>';
     return map;
   }
 
@@ -390,8 +393,18 @@
   }
 
 
-  // attach a infobox to each annotation in the DOM tree
+
   $().ready(function() {
+    
+    // augment links in the structured data form so that vocab info box can be displayed
+    if (Drupal.settings.wisski.editor.showTooltipsForForm) {
+      $('.wki-data-value a').each(function() {
+        $(this).addClass('wisski_anno');
+        $(this).addClass('wisski_anno_uri_' + encodeURIComponent($(this).attr('href')));
+      });
+    }
+
+    // attach a infobox to each annotation in the DOM tree
     $('.wisski_anno').ttip_set();
   });
 
