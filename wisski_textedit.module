@@ -131,10 +131,12 @@ function wisski_textedit_init() {
   $css_file = variable_get('wisski_textedit_css_file', NULL);
   if (!empty($css_file)) drupal_add_css($css_file, 'theme');
   // does not work, only D7! :(  drupal_add_css($base_root . $base_path . 'wisski/editor/editor.css');  // new: generate the css file on demand; this avoids writing the file on the filesystem
-  drupal_add_css($path . '/tooltip_plugin/css/ttip.css');
- 
-  drupal_add_js($path . '/tooltip_plugin/lib/jquery.qtip.js');
-  drupal_add_js($path . '/tooltip_plugin/tooltips.js', 'module');
+  
+  if (!module_exists('wisski_vocab_ctrl')) {
+    drupal_add_css($path . '/tooltip_plugin/css/ttip.css');
+    drupal_add_js($path . '/tooltip_plugin/lib/jquery.qtip.js');
+    drupal_add_js($path . '/tooltip_plugin/tooltips.js', 'module');
+  }
   
   drupal_add_js(
       array(
