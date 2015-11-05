@@ -139,11 +139,11 @@ function wisski_textedit_build_vocabularies() {
 };
 
 function wisski_textedit_form_wisski_vocab_ctrl_admin_edit_alter () {
-  cache_clear_all('wisski_textedit_vocabularies');
+  cache_clear_all('wisski_textedit_vocabularies', 'cache');
 }
 
 function wisski_textedit_form_wisski_pathbuilder_overview_form_alter () {
-  cache_clear_all('wisski_textedit_ontologies');
+  cache_clear_all('wisski_textedit_ontologies', 'cache');
 }
 
 
