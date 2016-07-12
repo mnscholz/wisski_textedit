@@ -21,20 +21,27 @@
 *
 */
 function _wisski_textedit_ws_query_params(&$query, $key = NULL) {
-  
+
+#var_dump($_GET);
+#var_dump($_POST);
+#var_dump($_REQUEST);
   $q = (object) NULL;
   if (isset($_POST['wisski_editor_query'])) {
     $q = $_POST['wisski_editor_query'];
     $q = json_decode($q);
+#var_dump(1);
   } elseif (isset($_GET['wisski_editor_query'])) {
     $q = $_GET['wisski_editor_query'];
     $q = json_decode($q);
+#var_dump(2);
   } elseif (isset($_POST['wisski_query'])) {
     $q = $_POST['wisski_query'];
     $q = json_decode($q);
+#var_dump(3);
   } elseif (isset($_GET['wisski_query'])) {
     $q = $_GET['wisski_query'];
     $q = json_decode($q);
+#var_dump(4);
   } elseif (isset($_POST['textdata'])) {
     $q = $_POST['textdata'];
     $q = json_decode($q);
@@ -46,12 +53,14 @@ function _wisski_textedit_ws_query_params(&$query, $key = NULL) {
   } elseif ($key !== NULL && isset($_GET[$key])) {
     $q = (object) $_GET;
   } else {
+#var_dump(9);
     $data = file_get_contents("php://input");
     if ($data) {
       $q = json_decode($data);
     }
   }
-  
+#var_dump($q);
+
   foreach ($query as $k => $v) {
     if (isset($q->$k)) $query->$k = $q->$k;
   }
